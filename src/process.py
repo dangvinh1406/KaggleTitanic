@@ -36,9 +36,11 @@ class Preprocessor:
             pClass[int(record[header["Pclass"]])-1] = 1
             vector += pClass
 
-            sex = [1]
+            sex = [0, 0]
             if record[header["Sex"]] == "male":
-                sex[0] = 0
+                sex[0] = 1
+            elif record[header["Sex"]] == "female":
+                sex[1] = 1
             vector += sex
 
             embarked = [0]*3
@@ -50,6 +52,8 @@ class Preprocessor:
                 embarked[2] = 1
             vector += embarked
 
+            vector += Preprocessor.process_string_features(
+                record[header["Name"]], record[header["Cabin"]], record[header["Ticket"]]) # 16 parameters
             try:
                 vector.append(float(record[header["Fare"]]))
             except:
@@ -70,9 +74,6 @@ class Preprocessor:
             except:
                 vector.append(0)
 
-            # need to process record[header["Ticket"]]
-            # need to process record[header["Cabin"]]
-
             vector = numpy.array(vector, dtype=numpy.float32)
             X.append(vector)
         return X
@@ -84,3 +85,75 @@ class Preprocessor:
             maxs = numpy.max(rawpoints, axis=0)
         rng = maxs-mins
         return high-(((high-low)*(maxs-rawpoints))/rng), maxs, mins
+
+    @staticmethod
+    def process_string_features(name, cabins, ticket):
+        result = []
+        if "Mr." in name:
+            result.append(1)
+        else:
+            result.append(0)
+
+        if "Miss." in name:
+            result.append(1)
+        else:
+            result.append(0)
+
+        if "Mrs." in name:
+            result.append(1)
+        else:
+            result.append(0)
+
+        if "Master." in name:
+            result.append(1)
+        else:
+            result.append(0)
+
+        if "Col." in name:
+            result.append(1)
+        else:
+            result.append(0)
+
+        if "Mlle." in name:
+            result.append(1)
+        else:
+            result.append(0)
+
+        if "Capt." in name:
+            result.append(1)
+        else:
+            result.append(0)
+
+        if "Dr." in name:
+            result.append(1)
+        else:
+            result.append(0)
+
+        if "." in ticket:
+            result.append(1)
+        else:
+            result.append(0)
+
+        if "/" in ticket:
+            result.append(1)
+        else:
+            result.append(0)
+
+        try:
+            number = int(ticket)
+            result.append(1)
+        except:
+            result.append(0)
+
+        # define 5 cabins
+        cabinFeature = [0]*5
+        cabins = cabins.split(" ")
+        i = 0
+        for cabin in cabins:
+            if cabin:
+                cabinFeature[i] = int(str(ord(cabin[0]))+cabin[1:])
+                i += 1
+
+        result.append(len(ticket))
+
+        return result
