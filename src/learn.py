@@ -15,18 +15,14 @@ class TitanicModel:
         onehotFeatures, otherFeatures = tf.split(self.__input, [onehotSize, featureSize-onehotSize], axis=1)
 
         onehotFC1 = tf.layers.dense(onehotFeatures, units=onehotSize, activation=tf.nn.relu)
-        onehotFC2 = tf.layers.dense(onehotFC1, units=onehotSize, activation=tf.nn.relu)
-        onehotFC3 = tf.layers.dense(onehotFC2, units=onehotSize, activation=tf.nn.relu)
-        onehotFC4 = tf.layers.dense(onehotFC3, units=4, activation=tf.nn.relu)
-        onehotFC5 = tf.layers.dense(onehotFC4, units=4, activation=tf.nn.relu)
-        onehotFC6 = tf.layers.dense(onehotFC5, units=2, activation=tf.nn.relu)
+        onehotFC2 = tf.layers.dense(onehotFC1, units=2, activation=tf.nn.relu)
         
         otherFC1 = tf.layers.dense(otherFeatures, units=featureSize-onehotSize, activation=tf.nn.sigmoid)
         otherFC2 = tf.layers.dense(otherFC1, units=featureSize-onehotSize, activation=tf.nn.sigmoid)
         otherFC3 = tf.layers.dense(otherFC2, units=featureSize-onehotSize, activation=tf.nn.sigmoid)
         otherFC4 = tf.layers.dense(otherFC3, units=2, activation=tf.nn.sigmoid)
 
-        concatLayer = tf.concat([onehotFC6, otherFC4], axis=1)
+        concatLayer = tf.concat([onehotFC2, otherFC4], axis=1)
         finalLayer = tf.layers.dense(concatLayer, units=4, activation=tf.nn.sigmoid)
         
         self.__logits = tf.layers.dense(finalLayer, units=2, activation=tf.nn.sigmoid)
